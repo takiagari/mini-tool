@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>エンティティ化＆解除ツール</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/destyle.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1 class="page_title">エンティティ化＆解除ツール</h1>
+  </header>
+  <main class="main">
+    <!-- viewマウント箇所 -->
+    <div id="app" class="tool_primary">
+      <div>
+        <h2 class="textarea_header">元のテキスト</h2>
+        <textarea v-model="inputText" class="textarea textarea_first" placeholder="ここにテキストを入力してください"></textarea>
+        <div class="button_flex_container flex-end my-10">
+          <button @click="encodeNamedEntities" class="tool_button">名前付きエンティティ化</button>
+          <button @click="decodeEntities" class="tool_button">エンティティ解除</button>
+        </div>
+      </div>
+      <div>
+        <h2 class="textarea_header">変換後のテキスト</h2>
+        <textarea v-model="outputText" class="textarea textarea_second" placeholder="変換結果がここに表示されます"></textarea>
+        <div class="button_flex_container flex-end my-10">
+          <button @click="copyToClipboard" ref="copyButton" class="tool_button">{{ copyButtonText }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="documentation">
+      <h2>エンティティ化＆解除ツールの使い方</h2>
+
+      <section class="doc_tree_section">
+        <h3>概要</h3>
+        <p>このツールは、テキストをエンティティ化（HTMLエンティティ）およびエンティティ解除します。<br>
+        また、エンティティ化されたテキストを元のテキストに戻すことも可能です。</p>
+      </section>
+
+      <section class="doc_tree_section">
+        <h3>使い方</h3>
+
+        <section class="doc_branch_section">
+          <h4>1. テキストの入力</h4>
+          <ol>
+            <li>「元のテキスト」欄にエンティティ化したいテキストを入力します。</li>
+          </ol>
+        </section>
+
+        <section class="doc_branch_section">
+          <h4>2. エンティティ化</h4>
+          <ol>
+            <li>テキストを入力したら、「名前付きエンティティ化」ボタンをクリックします。</li>
+            <ul>
+              <li>名前付きエンティティ化：入力されたテキストがHTMLエンティティに変換されます。</li>
+            </ul>
+          </ol>
+        </section>
+
+        <section class="doc_branch_section">
+          <h4>3. エンティティ解除</h4>
+          <ol>
+            <li>エンティティ化されたテキストを元に戻したい場合、「エンティティ解除」ボタンをクリックします。</li>
+            <li>変換後のテキスト欄に表示されているエンティティ化されたテキストが元のテキストに戻ります。</li>
+          </ol>
+        </section>
+      </section>
+
+      <section class="doc_tree_section">
+        <h3>注意点</h3>
+        <ul>
+          <li>既にエンティティ化されている文字の扱い：既にエンティティ化されている文字（例えば、&#38;#38; や &#38;#x26;）も再度エンティティ化されます。</li>
+          <li>このツールの動作内容は保証していません。入力や出力内容のすべては自己責任でご利用ください。</li>
+        </ul>
+      </section>
+
+    </div><!-- documentationここまで -->
+  </main>
+  <footer>
+    <a href="https://github.com/takiagari">@takiagari</a>
+  </footer>
+</div>
+<script src="vue/vue.global.js"></script>
+<script>
+  // HTMLエンティティの名前付きエンティティを定義
+  const namedEntities = {
+    '<': '&lt;',
+    '>': '&gt;',
+    '&': '&amp;',
+    '"': '&quot;', // 属性値の対応用にダブルクォートも対象に
+    "'": '&apos;' // 属性値の対応用にシングルクォートも対象に
+  };
+
+  // コピー関連のテキスト定数
+  const COPY_TEXT = 'コピー';
+  const COPIED_TEXT = 'コピーしました';
+
+  const app = Vue.createApp({
+    data() {
+      return {
+        // ユーザーが入力するテキストを保持する
+        inputText: '',
+        // エンティティ化または解除されたテキストを保持する
+        outputText: '',
+        // コピー用ボタンのテキスト
+        copyButtonText: 'コピー'
+      };
+    },
+    methods: {
+      // テキストを名前付きエンティティに変換する
+      encodeNamedEntities() {
+        this.outputText = this.inputText.replace(/[<>&"'`]/g, (i) => { // <>&"'が対象
+          // 該当するエンティティがあれば置換、該当しなければそのまま
+          return namedEntities[i] || i;
+        });
+      },
+      // エンティティを元の文字に戻すメソッド
+      decodeEntities() {
+        let decodedString = this.inputText;
+        // エンティティを解除するために&を繰り返し置換する
+        while (decodedString.includes('&amp;')) {
+          decodedString = decodedString.replace(/&amp;/g, '&');
+        }
+        // DOMParserを使用してHTMLエンティティを解析
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(decodedString, 'text/html');
+        // 解析結果を出力テキストに設定
+        this.outputText = doc.body.textContent || decodedString;
+      },
+      // 出力テキストをクリップボードにコピーするメソッド
+      copyToClipboard() {
+        // 一時的なテキストエリアを作成
+        const textarea = document.createElement('textarea');
+        // 出力テキストをテキストエリアに設定
+        textarea.value = this.outputText;
+        // テキストエリアをDOMに追加
+        document.body.appendChild(textarea);
+        // テキストエリアの内容を選択
+        textarea.select();
+        // クリップボードにコピー
+        document.execCommand('copy');
+        // テキストエリアをDOMから削除
+        document.body.removeChild(textarea);
+        // ボタンのテキストを変更
+        this.copyButtonText = COPIED_TEXT;
+        setTimeout(() => {
+          this.copyButtonText = COPY_TEXT;
+        }, 1000);
+      }
+    }
+  });
+
+  // #app要素にマウント
+  app.mount('#app');
+</script>
+</body>
+</html>

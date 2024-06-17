@@ -1,0 +1,275 @@
+:root {
+  --text-link: rgba(40, 40, 40, 0.8);
+  --text-link-hover: rgba(40, 40, 40, 1);
+  /* ボタンカラー */
+  --btn-tool-back: rgba(116, 116, 116, 0.9);
+  --btn-hover-back: rgb(116, 116, 116);
+  --btn-active-back: rgba(30, 30, 30, .3);
+  /* textareaカラー */
+  --textarea-color: rgb(35, 71, 29);
+
+  --modal-back: rgba(0, 0, 0, 0.5);
+}
+
+body {
+  color: var(--body-text-color);
+  font-family: 'Noto Serif JP', 'Hiragino Kaku Gothic Pro','ヒラギノ角ゴ Pro W3','メイリオ',Meiryo,'ＭＳ Ｐゴシック',sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.8;
+  font-size: .9rem;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%; /* Safari */
+}
+
+.main a {
+  color: var(--text-link);
+  border-bottom: 1px solid var(--text-link);
+}
+.main a:hover {
+  color: var(--text-link-hover);
+  border-bottom: 1px solid var(--text-link-hover);
+}
+
+.container,
+.documentation,
+.tool_primary .textarea {
+  max-width: 50rem;
+}
+
+.container,
+.documentation {
+  box-sizing: content-box;
+}
+
+.container {
+  padding: 0 2rem;
+  margin: 0 auto;
+}
+
+.header_back {
+  display: inline-flex;
+  align-items: center;
+  opacity: .6;
+  margin: 1rem auto 1rem 0;
+  z-index: 100;
+}
+
+.page_title {
+  font-size: 1.4rem;
+  margin: 1rem auto 2rem;
+  text-align: center;
+}
+
+.container .main {
+  padding: 0;
+}
+
+.textarea_header { /* h2 */
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.tool_primary .textarea {
+  border: 1px solid #ccc;
+  width: 100%;
+  height: 14rem;
+  text-align: left;
+  padding: .5rem 1rem;
+  color: var(--textarea-color);
+}
+
+.button_flex_container {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.tool_primary .tool_button {
+  display: block;
+  text-align: center;
+  font-size: .84rem;
+  line-height: 2.4;
+  min-width: 11rem;
+  background-color: var(--btn-tool-back);
+  color: #fff;
+  border-radius: 5rem;
+  box-shadow: 0 .2rem .5rem rgba(0, 0, 0, .25);
+  opacity: .7;
+  transition: opacity 0.3s ease;
+}
+
+.tool_primary .tool_button:hover {
+  opacity: 1;
+}
+
+.tool_primary .button_none {
+  color: var(--btn-tool-back);
+  background: none;
+  box-shadow: none;
+}
+
+
+/* セル表示 */
+
+.grid_container {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: .2rem;
+}
+.grid_item {
+  padding: .4rem;
+  position: relative;
+}
+
+.grid_item:nth-child(2n-1) {
+  text-align: right;
+}
+.grid_item:nth-child(2n) {
+  background:  #efefef;
+  text-align: left;
+  min-width: 4rem;
+}
+.grid_item .sup {
+  color: #aaa;
+  font-size: .9rem;
+  position: absolute;
+  right: .5rem;
+}
+
+/* --------------------- Doc --------------------- */
+
+.documentation{
+  margin: .5rem 0;
+}
+.documentation h2,
+.documentation h3,
+.documentation h4 {
+  font-weight: 500;
+}
+.documentation h2 {
+  margin-top: 2rem;
+  font-size: 1.2rem;
+}
+.documentation h3 {
+  font-size: 1.1rem;
+}
+.documentation h4 {
+  font-size: 1.05rem;
+}
+.documentation .doc_tree_section {
+  padding: 1rem 0;
+  border-bottom: 1px solid #aaa;
+}
+.documentation .doc_branch_section {
+  padding: 1rem 0;
+}
+.documentation .doc_branch_section:last-child {
+  padding: 1rem 0 0;
+}
+.documentation .doc_branch_section:not(:last-child) {
+  border-bottom: 1px dotted #ccc;
+}
+
+.documentation ol {
+  list-style-type: decimal;
+  margin-left: 1.6rem;
+  padding-left: 0;
+}
+.documentation ol li {
+  margin-bottom: .4rem;
+}
+.documentation ul {
+  list-style-type: disc;
+  margin-left: 1.6rem;
+  padding-left: 0;
+}
+.documentation ul li {
+  margin-bottom: .4rem;
+}
+.documentation .doc_tree_section ol {
+  list-style-type: decimal;
+}
+.documentation .doc_tree_section ul {
+  list-style-type: circle;
+}
+
+/* --------------------- modal --------------------- */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--modal-back);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: .5rem;
+  text-align: center;
+}
+
+.modal-content p {
+  margin-bottom: 1rem;
+}
+
+.modal-content .tool_button {
+  margin: 0.5rem;
+}
+
+footer {
+  margin: 2rem auto 5rem;
+  text-align: center;
+}
+
+/* --------------------- @media scree --------------------- */
+
+@media screen and (max-width: 640px) {
+  html {
+    font-size: 86%;
+  }
+  .button_flex_container {
+    flex-flow: column;
+  }
+}
+
+/* --------------------- 汎用 --------------------- */
+
+.my-10 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.flex-end {
+  justify-content: flex-end;
+}
+
+/* --------------------- ツール個別 --------------------- */
+
+.container.text_count,
+.text_count .textarea {
+  max-width: 47rem;
+}
+.text_count .textarea {
+  line-height: 1.4;
+  letter-spacing: 0;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+.text_count .grid_container {
+  grid-template-columns: auto 8rem;
+}
+
+.ruby_maker .textarea {
+  height: 3rem;
+  margin-bottom: .5rem;
+}
+.ruby_maker .textarea.ruby_html {
+  height: 6rem;
+}

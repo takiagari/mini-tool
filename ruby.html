@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>rubyタグメーカー</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/destyle.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container ruby_maker">
+  <header>
+    <h1 class="page_title">rubyタグメーカー</h1>
+  </header>
+  <main class="main">
+    <div id="app" class="tool_primary">
+      <div>
+        <h2 class="textarea_header">ふりがな</h2>
+        <textarea v-model="furiganaText" class="textarea ruby" placeholder="例：じゅうにひとえ"></textarea>
+        <h2 class="textarea_header">表示文字</h2>
+        <textarea v-model="displayText" class="textarea view" placeholder="例：十二単"></textarea>
+      </div>
+      <div>
+        <h2 class="textarea_header">作成したrubyタグ</h2>
+        <textarea v-model="outputText" class="textarea ruby_html" placeholder="作成したrubyタグが表示されます" readonly></textarea>
+        <div class="button_flex_container flex-end my-10">
+          <button @click="resetFields" class="tool_button">リセット</button>
+          <button @click="copyToClipboard" ref="copyButton" class="tool_button">{{ copyButtonText }}</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="documentation">
+      <h2>rubyタグメーカーの使い方</h2>
+
+      <section class="doc_tree_section">
+        <h3>概要</h3>
+        <p>このツールを使うと、表示文字とふりがなを入力だけでrubyタグが作れます。</p>
+      </section>
+
+      <section class="doc_tree_section">
+        <h3>使い方</h3>
+        <ol>
+          <li>「ふりがな」欄にふりがなを入力します。</li>
+          <li>「表示文字」欄に表示する文字を入力します。</li>
+          <li>ふりがなと表示文字の入力が完了すると、自動的にrubyタグが出力されます。</li>
+          <li>「コピー」ボタンをクリックすると、出力されたrubyタグがクリップボードにコピーされます。</li>
+        </ol>
+      </section>
+
+      <section class="doc_tree_section">
+        <h3>注意点</h3>
+        <ul>
+          <li>このツールの動作内容は保証していません。入力や出力内容のすべては自己責任でご利用ください。</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+  <footer>
+    <a href="https://github.com/takiagari">@takiagari</a>
+  </footer>
+</div>
+
+<script src="vue/vue.global.js"></script>
+<script>
+  // コピー関連のテキスト定数
+  const COPY_TEXT = 'コピー';
+  const COPIED_TEXT = 'コピーしました';
+
+  const app = Vue.createApp({
+    data() {
+      return {
+        // ユーザーが入力するふりがなテキスト
+        furiganaText: '',
+        // ユーザーが入力する表示テキスト
+        displayText: '',
+        // 生成されたルビタグ付きテキスト
+        outputText: '',
+        // コピー用ボタンのテキスト
+        copyButtonText: COPY_TEXT
+      };
+    },
+    methods: {
+      // ふりがなタグを生成するメソッド
+      generateRubyTag() {
+        // 表示文字とふりがなの両方が入力されている場合
+        if (this.displayText && this.furiganaText) {
+          // ルビタグを生成して outputText に設定
+          this.outputText = `<ruby>${this.displayText}<rp>(</rp><rt>${this.furiganaText}</rt><rp>)</rp></ruby>`;
+        } else {
+          // いずれかのテキストが入力されていない場合、outputText を空にする
+          this.outputText = '';
+        }
+      },
+      // テキストをクリップボードにコピーするメソッド
+      copyToClipboard() {
+        // 一時的なテキストエリアを作成
+        const textarea = document.createElement('textarea');
+        // テキストエリアに outputText を設定
+        textarea.value = this.outputText;
+        // テキストエリアを DOM に追加
+        document.body.appendChild(textarea);
+        // テキストエリアの内容を選択
+        textarea.select();
+        // クリップボードにコピー
+        document.execCommand('copy');
+        // テキストエリアを DOM から削除
+        document.body.removeChild(textarea);
+        // ボタンのテキストを一時的に「コピーしました」に変更
+        this.copyButtonText = COPIED_TEXT;
+        // 1秒後にボタンのテキストを元に戻す
+        setTimeout(() => {
+          this.copyButtonText = COPY_TEXT;
+        }, 1000);
+      },
+      // 入力フィールドをリセットするメソッド
+      resetFields() {
+        // ふりがなテキスト、表示テキスト、および生成されたテキストをリセット
+        this.furiganaText = '';
+        this.displayText = '';
+        this.outputText = '';
+      }
+    },
+    watch: {
+      // ふりがなが変更されるたびに generateRubyTagを実行
+      furiganaText: 'generateRubyTag',
+      // 表示文字が変更されるたびに generateRubyTagを実行
+      displayText: 'generateRubyTag'
+    }
+  });
+  // Vueアプリケーションを #app 要素にマウント
+  app.mount('#app');
+</script>
+</body>
+</html>

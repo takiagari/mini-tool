@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>文字数カウント</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/destyle.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="container text_count">
+  <header>
+    <h1 class="page_title">文字数カウント</h1>
+  </header>
+  <main class="main">
+    <div id="app" class="tool_primary">
+      <div>
+        <h2 class="textarea_header">カウントするテキスト</h2>
+        <textarea v-model="inputText" class="textarea textarea_first textarea-count" placeholder="ここにテキストを入力してください"></textarea>
+      </div>
+      <div class="button_flex_container flex-end my-10">
+        <button @click="resetText" class="tool_button">テキストをリセット</button>
+        <button @click="copyToClipboard" ref="copyButton" class="tool_button">{{ copyButtonText }}</button>
+      </div>
+      <div class="grid_container">
+        <div class="grid_item">文字数</div>
+        <div class="grid_item">{{ inputText.length }} <span class="sup">文字</span></div>
+        <div class="grid_item">行数</div>
+        <div class="grid_item">{{ lineCount }} <span class="sup">行</span></div>
+        <div class="grid_item">改行を除いた文字数</div>
+        <div class="grid_item">{{ charCountWithoutNewlines }} <span class="sup">文字</span></div>
+        <div class="grid_item">改行、空白を除いた文字数</div>
+        <div class="grid_item">{{ charCountWithoutSpacesNewlines }} <span class="sup">文字</span></div>
+        <div class="grid_item">1行あたりの最大文字数</div>
+        <div class="grid_item">{{ maxLineLength }} <span class="sup">文字</span></div>
+      </div>
+    </div>
+
+    <div class="documentation">
+      <h2>文字数カウントツールの使い方</h2>
+
+      <section class="doc_tree_section">
+        <h3>概要</h3>
+        <p>このツールは、テキストの文字数、行数、最大行長などのを計算します。</p>
+      </section>
+
+      <section class="doc_tree_section">
+        <h3>使い方</h3>
+
+        <section class="doc_branch_section">
+          <h4>1. テキストの入力</h4>
+          <ol>
+            <li>「元のテキスト」欄にテキストを入力します。</li>
+            <li>入力に応じて、文字数カウントがリアルタイムで更新されます。</li>
+          </ol>
+        </section>
+
+        <section class="doc_branch_section">
+          <h4>2. テキストのコピー</h4>
+          <ol>
+            <li>「コピー」ボタンをクリックすると、テキストエリアのテキストがクリップボードにコピーされます。</li>
+          </ol>
+        </section>
+      </section>
+
+      <section class="doc_tree_section">
+        <h3>注意点</h3>
+        <ul>
+          <li>このツールの動作内容は保証していません。入力や出力内容のすべては自己責任でご利用ください。</li>
+        </ul>
+      </section>
+
+    </div><!-- documentationここまで -->
+  </main>
+  <footer>
+    <a href="https://github.com/takiagari">@takiagari</a>
+  </footer>
+</div>
+<script src="vue/vue.global.js"></script>
+<script>
+  // コピー関連のテキスト定数
+  const COPY_TEXT = 'コピー';
+  const COPIED_TEXT = 'コピーしました';
+
+  const app = Vue.createApp({
+    data() {
+      return {
+        // ユーザーが入力するテキストを保持する
+        inputText: '',
+        // コピー用ボタンのテキスト
+        copyButtonText: COPY_TEXT,
+        // 行数
+        lineCount: 0,
+        // 最大行長
+        maxLineLength: 0,
+        // 改行を除いた文字数
+        charCountWithoutNewlines: 0,
+        // 改行、空白を除いた文字数
+        charCountWithoutSpacesNewlines: 0
+      };
+    },
+    methods: {
+      // カウント数量を計算するメソッド
+      calculateMetrics() {
+        const text = this.inputText;
+
+        // テキストが空の場合、すべてのカウント数量をリセット
+        if (!text) {
+          this.lineCount = 0;
+          this.maxLineLength = 0;
+          this.charCountWithoutNewlines = 0;
+          this.charCountWithoutSpacesNewlines = 0;
+          return;
+        }
+
+        // テキストを行ごとに分割
+        const lines = text.split('\n');
+        this.lineCount = lines.length;
+        
+        // 各行の文字数の最大値を計算
+        const lineLengths = lines.map(line => line.length);
+        this.maxLineLength = Math.max(...lineLengths);
+        
+        // 改行を除いた文字数を計算
+        const textWithoutNewlines = text.replace(/\n/g, ''); // 改行を除外
+        this.charCountWithoutNewlines = textWithoutNewlines.length;
+        
+        // 改行、空白を除いた文字数を計算
+        const textWithoutSpacesNewlines = text.replace(/[\s　]/g, ''); // スペースを除外
+        this.charCountWithoutSpacesNewlines = textWithoutSpacesNewlines.length;
+      },
+      // テキストをクリップボードにコピーするメソッド
+      copyToClipboard() {
+        // 一時的なテキストエリアを作成
+        const textarea = document.createElement('textarea');
+        // テキストエリアに入力テキストを設定
+        textarea.value = this.inputText;
+        // テキストエリアをDOMに追加
+        document.body.appendChild(textarea);
+        // テキストエリアの内容を選択
+        textarea.select();
+        // クリップボードにコピー
+        document.execCommand('copy');
+        // テキストエリアをDOMから削除
+        document.body.removeChild(textarea);
+        // ボタンのテキストを一時的に変更
+        this.copyButtonText = COPIED_TEXT;
+        // 1秒後に元に戻す
+        setTimeout(() => {
+          this.copyButtonText = COPY_TEXT;
+        }, 1000);
+      },
+      // テキストをリセットするメソッド
+      resetText() {
+        this.inputText = '';
+      }
+    },
+    watch: {
+      // inputTextを監視し、calculateMetricsを実行
+      inputText: 'calculateMetrics'
+    }
+  });
+
+  // Vueアプリケーションを#app要素にマウント
+  app.mount('#app');
+</script>
+</body>
+</html>
